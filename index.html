@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Base Cleaning — Site Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --navy:    #0a0f1e;
+  --navy2:   #111829;
+  --navy3:   #1a2540;
+  --blue:    #1e7fff;
+  --cyan:    #00d4ff;
+  --white:   #f5f7fa;
+  --grey:    #8a96ad;
+  --lgrey:   #c8d0df;
+  --green:   #00c853;
+  --amber:   #f5a623;
+  --red:     #ff3b30;
+  --font-d:  'Barlow Condensed', sans-serif;
+  --font-b:  'DM Sans', sans-serif;
+  --r:       10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-b);
+  font-size: 15px;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--navy2);
+  border-bottom: 2px solid var(--cyan);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-logo {
+  font-family: var(--font-d);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.topbar-logo span { color: var(--cyan); }
+.topbar-right {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+/* ── LAYOUT ── */
+.container { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
+
+/* ── STEP HEADER ── */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.step-title {
+  font-family: var(--font-d);
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--white);
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--navy2);
+  border: 1px solid var(--navy3);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+
+/* ── FORM ELEMENTS ── */
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 6px;
+}
+input[type=text],
+input[type=date],
+input[type=time],
+select,
+textarea {
+  width: 100%;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--navy3);
+  border-radius: 7px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: var(--font-b);
+  color: var(--white);
+  outline: none;
+  transition: border-color .2s, background .2s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+  background: rgba(30,127,255,.07);
+}
+input::placeholder, textarea::placeholder { color: var(--grey); }
+select option { background: var(--navy2); }
+textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 14px; }
+
+/* ── SHIFT TOGGLE ── */
+.shift-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.shift-btn {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--navy3);
+  background: transparent;
+  color: var(--grey);
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.shift-btn span { font-size: 10px; font-family: var(--font-b); font-weight: 400; letter-spacing: .06em; }
+.shift-btn.active.morning { border-color: var(--amber); color: var(--amber); background: rgba(245,166,35,.08); }
+.shift-btn.active.night { border-color: var(--blue); color: var(--blue); background: rgba(30,127,255,.08); }
+
+/* ── AREA CARDS ── */
+.areas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.area-card {
+  background: var(--navy);
+  border: 1.5px solid var(--navy3);
+  border-radius: 8px;
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.area-card.has-photo {
+  border-color: var(--green);
+}
+.area-card.has-issue {
+  border-color: var(--red);
+}
+.area-card-name {
+  font-family: var(--font-d);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.area-card-status {
+  font-size: 11px;
+  color: var(--grey);
+}
+.area-card.has-photo .area-card-status { color: var(--green); }
+.area-card.has-issue .area-card-status { color: var(--red); }
+.area-thumb {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-top: 8px;
+  display: none;
+}
+.area-card.has-photo .area-thumb { display: block; }
+.area-check {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+.area-card.has-photo .area-check { display: flex; }
+.area-issue-dot {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--red);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+.area-card.has-issue .area-check { display: none; }
+.area-card.has-issue .area-issue-dot { display: flex; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--navy2);
+  border-radius: 16px 16px 0 0;
+  border-top: 2px solid var(--blue);
+  width: 100%;
+  max-width: 640px;
+  padding: 24px 20px 40px;
+  animation: slideup .25s ease;
+}
+@keyframes slideup { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-title {
+  font-family: var(--font-d);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--white);
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close {
+  background: var(--navy3);
+  border: none;
+  color: var(--grey);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── PHOTO UPLOAD ── */
+.photo-upload-area {
+  border: 2px dashed var(--navy3);
+  border-radius: 10px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s;
+  margin-bottom: 14px;
+  position: relative;
+}
+.photo-upload-area:hover { border-color: var(--blue); }
+.photo-upload-area input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.photo-upload-icon { font-size: 28px; margin-bottom: 8px; }
+.photo-upload-text { font-size: 13px; color: var(--grey); }
+.photo-preview-wrap { position: relative; margin-bottom: 14px; }
+.photo-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: none;
+}
+.photo-preview.show { display: block; }
+.photo-remove {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--red);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  font-size: 13px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.photo-preview.show + .photo-remove { display: flex; }
+
+/* ── STATUS BUTTONS ── */
+.status-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.status-btn {
+  padding: 10px;
+  border-radius: 7px;
+  border: 1.5px solid var(--navy3);
+  background: transparent;
+  font-family: var(--font-b);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--grey);
+}
+.status-btn.clean.active { border-color: var(--green); color: var(--green); background: rgba(0,200,83,.08); }
+.status-btn.issue.active { border-color: var(--red); color: var(--red); background: rgba(255,59,48,.08); }
+
+/* ── BUTTONS ── */
+.btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  border: none;
+  font-family: var(--font-b);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #4da3ff; transform: translateY(-1px); }
+.btn-secondary { background: var(--navy3); color: var(--lgrey); }
+.btn-secondary:hover { background: #2a3a5a; }
+.btn-green { background: var(--green); color: white; }
+.btn-green:hover { filter: brightness(1.1); }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--navy3);
+  color: var(--lgrey);
+  margin-bottom: 10px;
+}
+.btn-sm {
+  width: auto;
+  padding: 10px 18px;
+  font-size: 13px;
+}
+
+/* ── PROGRESS ── */
+.progress-bar {
+  background: var(--navy3);
+  border-radius: 4px;
+  height: 6px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  border-radius: 4px;
+  transition: width .4s ease;
+}
+
+/* ── SUMMARY ── */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--navy3);
+  font-size: 14px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-label { color: var(--grey); }
+.summary-value { font-weight: 600; color: var(--white); }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.badge-green { background: rgba(0,200,83,.15); color: var(--green); }
+.badge-red { background: rgba(255,59,48,.15); color: var(--red); }
+.badge-grey { background: var(--navy3); color: var(--grey); }
+
+/* ── AREA SUMMARY LIST ── */
+.area-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.area-summary-item {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.area-summary-thumb {
+  width: 52px; height: 52px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--navy3);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--grey);
+  font-size: 18px;
+}
+.area-summary-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+.area-summary-info { flex: 1; }
+.area-summary-name {
+  font-family: var(--font-d);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 3px;
+}
+.area-summary-note { font-size: 12px; color: var(--grey); line-height: 1.5; }
+
+/* ── VIEW TOGGLE ── */
+.view-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.view-tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--navy3);
+  background: transparent;
+  color: var(--grey);
+  font-family: var(--font-b);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+.view-tab.active {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(30,127,255,.08);
+}
+
+/* ── SUCCESS ── */
+.success-screen {
+  text-align: center;
+  padding: 40px 20px;
+  display: none;
+}
+.success-screen.show { display: block; }
+.success-icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(0,200,83,.15);
+  border: 2px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 20px;
+}
+.success-title {
+  font-family: var(--font-d);
+  font-size: 26px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.success-sub { font-size: 14px; color: var(--grey); margin-bottom: 28px; }
+
+/* ── SECTION DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--navy3);
+  margin: 20px 0;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:400px) {
+  .areas-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Base<span>.</span>Cleaning</div>
+  <div class="topbar-right" id="topbar-date"></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN 1 — JOB DETAILS            -->
+<!-- ══════════════════════════════════ -->
+<div id="screen-1" class="container">
+  <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+
+  <div class="step-header">
+    <div class="step-num">1</div>
+    <div class="step-title">Job Details</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Site Information</div>
+
+    <div class="form-group">
+      <label>Site Name</label>
+      <select id="site-name">
+        <option value="">Select site...</option>
+        <option>Liverpool Plaza</option>
+        <option>Gym — Site A</option>
+        <option>Gym — Site B</option>
+        <option>Office — Site A</option>
+        <option>Warehouse — Site A</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="report-date">
+      </div>
+      <div class="form-group">
+        <label>Time</label>
+        <input type="time" id="report-time">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="cleaner-name" placeholder="e.g. Dad — Morning Shift">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Select Shift</div>
+    <div class="shift-toggle">
+      <button class="shift-btn morning" onclick="selectShift('morning', this)">
+        Morning
+        <span>6:00am – 2:00pm</span>
+      </button>
+      <button class="shift-btn night" onclick="selectShift('night', this)">
+        Night
+        <span>After 11:00pm</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="goToScreen(2)">
+    Next — Photo Areas
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN 2 — PHOTO AREAS            -->
+<!-- ══════════════════════════════════ -->
+<div id="screen-2" class="container" style="display:none">
+  <div class="progress-bar"><div class="progress-fill" style="width:55%"></div></div>
+
+  <div class="step-header">
+    <div class="step-num">2</div>
+    <div class="step-title">Photograph Each Area</div>
+  </div>
+
+  <p style="font-size:13px;color:var(--grey);margin-bottom:16px;line-height:1.6;">
+    Tap each area to add a photo and mark its status. Take photos of the key cleaning areas — before and after or end of shift condition.
+  </p>
+
+  <div class="areas-grid" id="areas-grid"></div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">Overall Shift Notes</div>
+    <textarea id="overall-notes" placeholder="Any general observations, issues, or notes for this shift..."></textarea>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn btn-secondary" style="width:auto;padding:12px 20px;" onclick="goToScreen(1)">Back</button>
+    <button class="btn btn-primary" onclick="goToScreen(3)" style="flex:1;">
+      Review Report
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN 3 — REVIEW & SUBMIT        -->
+<!-- ══════════════════════════════════ -->
+<div id="screen-3" class="container" style="display:none">
+  <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+
+  <div class="step-header">
+    <div class="step-num">3</div>
+    <div class="step-title">Review & Submit</div>
+  </div>
+
+  <div class="card" id="review-summary"></div>
+
+  <div class="card">
+    <div class="card-title">Area Summary</div>
+    <div class="area-summary" id="area-summary-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Signature</div>
+    <div class="form-group">
+      <label>Submitted by</label>
+      <input type="text" id="submitted-by" placeholder="Your full name">
+    </div>
+    <p style="font-size:12px;color:var(--grey);">By submitting you confirm this report is accurate and complete.</p>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn btn-secondary" style="width:auto;padding:12px 20px;" onclick="goToScreen(2)">Back</button>
+    <button class="btn btn-green" onclick="submitReport()" style="flex:1;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Submit Report
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN 4 — SUCCESS                -->
+<!-- ══════════════════════════════════ -->
+<div id="screen-4" class="container" style="display:none">
+  <div class="success-screen show">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Report Submitted</div>
+    <div class="success-sub" id="success-sub">Report saved and ready to download.</div>
+
+    <button class="btn btn-primary" onclick="downloadPDF()" style="margin-bottom:12px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF Report
+    </button>
+
+    <button class="btn btn-outline" onclick="newReport()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Start New Report
+    </button>
+
+    <div class="divider"></div>
+
+    <div id="past-reports-section" style="text-align:left;">
+      <div class="card-title" style="margin-bottom:12px;">Past Reports</div>
+      <div id="past-reports-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- AREA MODAL                        -->
+<!-- ══════════════════════════════════ -->
+<div class="modal-overlay" id="area-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-area-name">Area Name</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="photo-preview-wrap">
+      <img id="modal-photo-preview" class="photo-preview" src="" alt="">
+      <button class="photo-remove" onclick="removePhoto()" id="remove-btn">✕</button>
+    </div>
+
+    <div class="photo-upload-area" id="upload-area">
+      <input type="file" accept="image/*" capture="environment" id="photo-input" onchange="handlePhoto(event)">
+      <div class="photo-upload-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div class="photo-upload-text">Tap to take photo or upload</div>
+    </div>
+
+    <div class="form-group">
+      <label>Area Status</label>
+      <div class="status-btns">
+        <button class="status-btn clean" id="btn-clean" onclick="setStatus('clean')">All Clean</button>
+        <button class="status-btn issue" id="btn-issue" onclick="setStatus('issue')">Issue Found</button>
+      </div>
+    </div>
+
+    <div class="form-group" id="issue-note-wrap" style="display:none;">
+      <label>Describe the Issue</label>
+      <textarea id="issue-note" placeholder="What is the issue? What action was taken or needed?"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Additional Notes (optional)</label>
+      <textarea id="area-note" placeholder="Any other notes for this area..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveArea()">Save Area</button>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────
+const AREAS = [
+  { id: 'floor',     name: 'Floors',         icon: '◼' },
+  { id: 'bathroom',  name: 'Bathrooms',       icon: '◼' },
+  { id: 'kitchen',   name: 'Kitchen',         icon: '◼' },
+  { id: 'entrance',  name: 'Entrance',        icon: '◼' },
+  { id: 'bins',      name: 'Bins',            icon: '◼' },
+  { id: 'equipment', name: 'Equipment',       icon: '◼' },
+  { id: 'windows',   name: 'Windows/Glass',   icon: '◼' },
+  { id: 'reception', name: 'Reception/Desk',  icon: '◼' },
+];
+
+let state = {
+  site: '', date: '', time: '', cleaner: '', shift: '',
+  areas: {}, overallNotes: '', submittedBy: '',
+};
+let currentArea = null;
+let reports = JSON.parse(localStorage.getItem('bcReports') || '[]');
+
+// ── Init ──────────────────────────────────────────────────────────
+window.onload = () => {
+  const now = new Date();
+  document.getElementById('topbar-date').textContent =
+    now.toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short' });
+  document.getElementById('report-date').value = now.toISOString().split('T')[0];
+  document.getElementById('report-time').value =
+    now.toTimeString().slice(0,5);
+  renderAreas();
+};
+
+// ── Screen navigation ─────────────────────────────────────────────
+function goToScreen(n) {
+  if (n === 2) {
+    state.site    = document.getElementById('site-name').value;
+    state.date    = document.getElementById('report-date').value;
+    state.time    = document.getElementById('report-time').value;
+    state.cleaner = document.getElementById('cleaner-name').value;
+    if (!state.site || !state.date || !state.cleaner || !state.shift) {
+      alert('Please fill in all job details and select a shift.');
+      return;
+    }
+  }
+  if (n === 3) {
+    state.overallNotes = document.getElementById('overall-notes').value;
+    buildReview();
+  }
+  [1,2,3,4].forEach(i =>
+    document.getElementById(`screen-${i}`).style.display = i === n ? '' : 'none'
+  );
+  window.scrollTo(0,0);
+}
+
+// ── Shift ─────────────────────────────────────────────────────────
+function selectShift(shift, el) {
+  document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  state.shift = shift;
+}
+
+// ── Areas ─────────────────────────────────────────────────────────
+function renderAreas() {
+  const grid = document.getElementById('areas-grid');
+  grid.innerHTML = AREAS.map(a => {
+    const d = state.areas[a.id] || {};
+    const hasPhoto = !!d.photo;
+    const hasIssue = d.status === 'issue';
+    const statusText = hasIssue ? 'Issue found' : hasPhoto ? 'Photographed' : 'Tap to add photo';
+    return `
+      <div class="area-card ${hasPhoto ? 'has-photo' : ''} ${hasIssue ? 'has-issue' : ''}"
+           onclick="openModal('${a.id}')">
+        <div class="area-check">✓</div>
+        <div class="area-issue-dot">!</div>
+        <div class="area-card-name">${a.name}</div>
+        <div class="area-card-status">${statusText}</div>
+        ${hasPhoto ? `<img class="area-thumb" src="${d.photo}" alt="">` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ── Modal ─────────────────────────────────────────────────────────
+function openModal(areaId) {
+  currentArea = areaId;
+  const area = AREAS.find(a => a.id === areaId);
+  const d = state.areas[areaId] || {};
+  document.getElementById('modal-area-name').textContent = area.name;
+
+  // Photo
+  const prev = document.getElementById('modal-photo-preview');
+  const removeBtn = document.getElementById('remove-btn');
+  const uploadArea = document.getElementById('upload-area');
+  if (d.photo) {
+    prev.src = d.photo;
+    prev.classList.add('show');
+    removeBtn.style.display = 'flex';
+    uploadArea.style.display = 'none';
+  } else {
+    prev.classList.remove('show');
+    removeBtn.style.display = 'none';
+    uploadArea.style.display = '';
+  }
+  document.getElementById('photo-input').value = '';
+
+  // Status
+  document.getElementById('btn-clean').classList.toggle('active', d.status === 'clean');
+  document.getElementById('btn-issue').classList.toggle('active', d.status === 'issue');
+  document.getElementById('issue-note-wrap').style.display = d.status === 'issue' ? '' : 'none';
+  document.getElementById('issue-note').value = d.issueNote || '';
+  document.getElementById('area-note').value = d.note || '';
+
+  document.getElementById('area-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('area-modal').classList.remove('open');
+  currentArea = null;
+}
+
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const src = ev.target.result;
+    const prev = document.getElementById('modal-photo-preview');
+    prev.src = src;
+    prev.classList.add('show');
+    document.getElementById('remove-btn').style.display = 'flex';
+    document.getElementById('upload-area').style.display = 'none';
+    if (!state.areas[currentArea]) state.areas[currentArea] = {};
+    state.areas[currentArea].photo = src;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  if (state.areas[currentArea]) delete state.areas[currentArea].photo;
+  document.getElementById('modal-photo-preview').classList.remove('show');
+  document.getElementById('remove-btn').style.display = 'none';
+  document.getElementById('upload-area').style.display = '';
+}
+
+function setStatus(status) {
+  document.getElementById('btn-clean').classList.toggle('active', status === 'clean');
+  document.getElementById('btn-issue').classList.toggle('active', status === 'issue');
+  document.getElementById('issue-note-wrap').style.display = status === 'issue' ? '' : 'none';
+  if (!state.areas[currentArea]) state.areas[currentArea] = {};
+  state.areas[currentArea].status = status;
+}
+
+function saveArea() {
+  if (!state.areas[currentArea]) state.areas[currentArea] = {};
+  state.areas[currentArea].issueNote = document.getElementById('issue-note').value;
+  state.areas[currentArea].note      = document.getElementById('area-note').value;
+  closeModal();
+  renderAreas();
+}
+
+// ── Review ────────────────────────────────────────────────────────
+function buildReview() {
+  const photographed = AREAS.filter(a => state.areas[a.id]?.photo).length;
+  const issues       = AREAS.filter(a => state.areas[a.id]?.status === 'issue').length;
+  const clean        = AREAS.filter(a => state.areas[a.id]?.status === 'clean').length;
+
+  document.getElementById('review-summary').innerHTML = `
+    <div class="card-title">Report Summary</div>
+    <div class="summary-row"><span class="summary-label">Site</span><span class="summary-value">${state.site}</span></div>
+    <div class="summary-row"><span class="summary-label">Date</span><span class="summary-value">${formatDate(state.date)}</span></div>
+    <div class="summary-row"><span class="summary-label">Shift</span><span class="summary-value">${state.shift === 'morning' ? 'Morning — 6:00am–2:00pm' : 'Night — After 11:00pm'}</span></div>
+    <div class="summary-row"><span class="summary-label">Submitted by</span><span class="summary-value">${state.cleaner}</span></div>
+    <div class="summary-row">
+      <span class="summary-label">Areas photographed</span>
+      <span class="badge ${photographed === AREAS.length ? 'badge-green' : 'badge-grey'}">${photographed}/${AREAS.length}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Clean areas</span>
+      <span class="badge badge-green">${clean}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Issues found</span>
+      <span class="badge ${issues > 0 ? 'badge-red' : 'badge-green'}">${issues}</span>
+    </div>
+    ${state.overallNotes ? `<div class="summary-row"><span class="summary-label">Notes</span><span class="summary-value" style="font-size:13px;max-width:60%;text-align:right;">${state.overallNotes}</span></div>` : ''}
+  `;
+
+  const list = document.getElementById('area-summary-list');
+  list.innerHTML = AREAS.map(a => {
+    const d = state.areas[a.id] || {};
+    const statusBadge = d.status === 'clean'
+      ? '<span class="badge badge-green">Clean</span>'
+      : d.status === 'issue'
+      ? '<span class="badge badge-red">Issue</span>'
+      : '<span class="badge badge-grey">Not marked</span>';
+    const note = d.issueNote || d.note || '';
+    return `
+      <div class="area-summary-item">
+        <div class="area-summary-thumb">
+          ${d.photo ? `<img src="${d.photo}" alt="">` : '📷'}
+        </div>
+        <div class="area-summary-info">
+          <div class="area-summary-name">${a.name} ${statusBadge}</div>
+          ${note ? `<div class="area-summary-note">${note}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('submitted-by').value = state.cleaner;
+}
+
+// ── Submit ────────────────────────────────────────────────────────
+function submitReport() {
+  state.submittedBy = document.getElementById('submitted-by').value;
+  if (!state.submittedBy) { alert('Please enter your name to submit.'); return; }
+
+  const report = { ...state, id: Date.now(), submittedAt: new Date().toISOString() };
+  reports.unshift(report);
+  // Store without photos to save space
+  const light = reports.map(r => ({ ...r, areas: Object.fromEntries(Object.entries(r.areas).map(([k,v]) => [k, {...v, photo: v.photo ? '[photo]' : null}])) }));
+  try { localStorage.setItem('bcReports', JSON.stringify(light.slice(0,50))); } catch(e) {}
+
+  const issues = AREAS.filter(a => state.areas[a.id]?.status === 'issue').length;
+  document.getElementById('success-sub').textContent =
+    issues > 0
+      ? `Report submitted. ${issues} issue${issues > 1 ? 's' : ''} flagged — download PDF to send to management.`
+      : 'All areas clean. Download PDF to send to client or management.';
+
+  renderPastReports();
+  goToScreen(4);
+}
+
+// ── Past Reports ──────────────────────────────────────────────────
+function renderPastReports() {
+  const container = document.getElementById('past-reports-list');
+  if (reports.length === 0) { container.innerHTML = '<p style="color:var(--grey);font-size:13px;">No past reports yet.</p>'; return; }
+  container.innerHTML = reports.slice(0,5).map(r => {
+    const issues = Object.values(r.areas).filter(a => a.status === 'issue').length;
+    return `
+      <div style="background:var(--navy);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-family:var(--font-d);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${r.site}</div>
+          <div style="font-size:12px;color:var(--grey);margin-top:2px;">${formatDate(r.date)} · ${r.shift === 'morning' ? 'Morning' : 'Night'} · ${r.cleaner}</div>
+        </div>
+        <span class="badge ${issues > 0 ? 'badge-red' : 'badge-green'}">${issues > 0 ? `${issues} issue` : 'All clear'}</span>
+      </div>`;
+  }).join('');
+}
+
+// ── PDF Generation ────────────────────────────────────────────────
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210; const MARGIN = 16; const CW = W - MARGIN * 2;
+  let y = 0;
+
+  const navy    = [10, 15, 30];
+  const navy2   = [17, 24, 41];
+  const blue    = [30, 127, 255];
+  const cyan    = [0, 212, 255];
+  const white   = [245, 247, 250];
+  const grey    = [138, 150, 173];
+  const green   = [0, 200, 83];
+  const red     = [255, 59, 48];
+  const lgrey   = [200, 208, 223];
+
+  function addPage() {
+    doc.addPage();
+    y = 0;
+    drawHeader();
+  }
+
+  function checkPage(need = 20) {
+    if (y + need > 270) addPage();
+  }
+
+  function drawHeader() {
+    doc.setFillColor(...navy2);
+    doc.rect(0, 0, W, 18, 'F');
+    doc.setFillColor(...cyan);
+    doc.rect(0, 18, W, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...white);
+    doc.text('BASE CLEANING SERVICE', MARGIN, 12);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...grey);
+    doc.text('Site Cleaning Report', MARGIN + 68, 12);
+    doc.setTextColor(...grey);
+    doc.text(`Page ${doc.getCurrentPageInfo().pageNumber}`, W - MARGIN, 12, { align: 'right' });
+    y = 24;
+  }
+
+  // Cover header
+  doc.setFillColor(...navy);
+  doc.rect(0, 0, W, 297, 'F');
+  doc.setFillColor(...navy2);
+  doc.rect(0, 0, W, 50, 'F');
+  doc.setFillColor(...cyan);
+  doc.rect(0, 50, W, 2, 'F');
+  doc.setFillColor(...blue);
+  doc.rect(0, 0, 4, 50, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...white);
+  doc.text('BASE', MARGIN + 6, 18);
+  doc.setTextColor(...cyan);
+  doc.text('  ·  CLEANING SERVICE', MARGIN + 6, 18);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...lgrey);
+  doc.text('Site Cleaning Report', MARGIN + 6, 26);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...grey);
+  doc.text(new Date().toLocaleDateString('en-AU', { weekday:'long', year:'numeric', month:'long', day:'numeric' }), W - MARGIN, 26, { align: 'right' });
+
+  y = 60;
+
+  // Report info box
+  const issues = AREAS.filter(a => state.areas[a.id]?.status === 'issue').length;
+  const clean  = AREAS.filter(a => state.areas[a.id]?.status === 'clean').length;
+
+  doc.setFillColor(...navy2);
+  doc.roundedRect(MARGIN, y, CW, 46, 3, 3, 'F');
+  doc.setFillColor(...blue);
+  doc.rect(MARGIN, y, 3, 46, 'F');
+
+  const infoItems = [
+    ['Site', state.site],
+    ['Date', formatDate(state.date)],
+    ['Shift', state.shift === 'morning' ? 'Morning  6:00am – 2:00pm' : 'Night  After 11:00pm'],
+    ['Submitted by', state.submittedBy || state.cleaner],
+  ];
+  infoItems.forEach((item, i) => {
+    const col = i < 2 ? 0 : 1;
+    const row = i % 2;
+    const x = MARGIN + 8 + col * (CW / 2);
+    const iy = y + 10 + row * 14;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...grey);
+    doc.text(item[0].toUpperCase(), x, iy);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...white);
+    doc.text(item[1], x, iy + 6);
+  });
+  y += 54;
+
+  // Status badges
+  const statusItems = [
+    { label: 'AREAS CLEAN', value: String(clean), color: green },
+    { label: 'ISSUES FOUND', value: String(issues), color: issues > 0 ? red : green },
+    { label: 'TOTAL AREAS', value: String(AREAS.length), color: blue },
+  ];
+  const bw = (CW - 8) / 3;
+  statusItems.forEach((item, i) => {
+    const bx = MARGIN + i * (bw + 4);
+    doc.setFillColor(...navy2);
+    doc.roundedRect(bx, y, bw, 22, 2, 2, 'F');
+    doc.setFillColor(...item.color);
+    doc.rect(bx, y, bw, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(...item.color);
+    doc.text(item.value, bx + bw/2, y + 13, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...grey);
+    doc.text(item.label, bx + bw/2, y + 19, { align: 'center' });
+  });
+  y += 30;
+
+  // Overall notes
+  if (state.overallNotes) {
+    doc.setFillColor(30, 50, 90);
+    doc.roundedRect(MARGIN, y, CW, 20, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...cyan);
+    doc.text('SHIFT NOTES', MARGIN + 6, y + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...lgrey);
+    const lines = doc.splitTextToSize(state.overallNotes, CW - 12);
+    doc.text(lines[0], MARGIN + 6, y + 14);
+    y += 26;
+  }
+
+  // Section header
+  doc.setFillColor(...navy2);
+  doc.rect(MARGIN, y, CW, 12, 'F');
+  doc.setFillColor(...blue);
+  doc.rect(MARGIN, y + 12, CW, 1, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...cyan);
+  doc.text('AREA BY AREA REPORT', MARGIN + 4, y + 8);
+  y += 18;
+
+  // Area rows
+  for (const area of AREAS) {
+    const d = state.areas[area.id] || {};
+    const rowH = d.photo ? 48 : 22;
+    checkPage(rowH + 4);
+
+    const rowColor = d.status === 'issue' ? [40, 15, 15] : d.status === 'clean' ? [10, 25, 15] : [...navy2];
+    doc.setFillColor(...rowColor);
+    doc.roundedRect(MARGIN, y, CW, rowH, 2, 2, 'F');
+
+    // Status dot
+    const dotColor = d.status === 'issue' ? red : d.status === 'clean' ? green : grey;
+    doc.setFillColor(...dotColor);
+    doc.circle(MARGIN + 6, y + (rowH/2), 3, 'F');
+
+    // Area name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...white);
+    doc.text(area.name.toUpperCase(), MARGIN + 14, y + 8);
+
+    // Status badge
+    const statusText = d.status === 'clean' ? 'ALL CLEAN' : d.status === 'issue' ? 'ISSUE FOUND' : 'NOT MARKED';
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...dotColor);
+    doc.text(statusText, W - MARGIN - 4, y + 8, { align: 'right' });
+
+    // Note
+    const noteText = d.issueNote || d.note || '';
+    if (noteText) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...lgrey);
+      const noteLines = doc.splitTextToSize(noteText, CW - 20);
+      doc.text(noteLines[0], MARGIN + 14, y + 16);
+    }
+
+    // Photo
+    if (d.photo) {
+      try {
+        doc.addImage(d.photo, 'JPEG', MARGIN + 4, y + 20, 36, 24);
+      } catch(e) {}
+    }
+
+    y += rowH + 4;
+  }
+
+  // Footer
+  checkPage(20);
+  y += 4;
+  doc.setFillColor(...navy2);
+  doc.rect(MARGIN, y, CW, 14, 'F');
+  doc.setFillColor(...blue);
+  doc.rect(MARGIN, y, CW, 1, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...grey);
+  doc.text('Base Cleaning Service  ·  ABN: XX XXX XXX XXX  ·  basecleaningservice.com.au', W/2, y + 9, { align: 'center' });
+
+  const shift = state.shift === 'morning' ? 'Morning' : 'Night';
+  const filename = `BaseClean_${state.site.replace(/\s+/g,'-')}_${state.date}_${shift}.pdf`;
+  doc.save(filename);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+}
+
+function newReport() {
+  state = { site:'', date:'', time:'', cleaner:'', shift:'', areas:{}, overallNotes:'', submittedBy:'' };
+  const now = new Date();
+  document.getElementById('site-name').value = '';
+  document.getElementById('report-date').value = now.toISOString().split('T')[0];
+  document.getElementById('report-time').value = now.toTimeString().slice(0,5);
+  document.getElementById('cleaner-name').value = '';
+  document.getElementById('overall-notes').value = '';
+  document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('active'));
+  renderAreas();
+  goToScreen(1);
+}
+</script>
+</body>
+</html>
